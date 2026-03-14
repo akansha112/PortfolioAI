@@ -9,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 // -----------------------------
 builder.Services.AddControllers();
 
+// Swagger / API documentation
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -25,8 +26,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-// applies the above policy
-
 // -----------------------------
 // Dependency Injection
 // -----------------------------
@@ -40,16 +39,25 @@ builder.Services.AddScoped<RagService>();
 builder.Services.AddSingleton<ResumeDataSeeder>(); // Seeder injected
 
 var app = builder.Build();
+
 // -----------------------------
 // HTTP request pipeline
 // -----------------------------
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
 
-app.UseHttpsRedirection();
+// Enable Swagger for all environments
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "PortfolioAI API V1");
+    c.RoutePrefix = "swagger"; // Swagger available at /swagger/index.html
+});
+
+// Apply HTTPS redirection only locally
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")) &&
+    Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") == "Development")
+{
+    app.UseHttpsRedirection();
+}
 
 // Apply CORS
 app.UseCors("AllowAll");
@@ -58,7 +66,9 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Only add this if PORT is set (Render deployment)
+// -----------------------------
+// Bind to Render dynamic PORT if set
+// -----------------------------
 var port = Environment.GetEnvironmentVariable("PORT");
 if (!string.IsNullOrEmpty(port))
 {
@@ -66,4 +76,3 @@ if (!string.IsNullOrEmpty(port))
 }
 
 app.Run();
-
