@@ -10,8 +10,11 @@ namespace PortfolioAI.Repositories
         
         private readonly string _apiKey = Environment.GetEnvironmentVariable("GOOGLE_GEMINI_KEY");
         private readonly string _indexUrl = Environment.GetEnvironmentVariable("PINECONE_INDEX_URL");
-        private readonly string _pineCodeKey = Environment.GetEnvironmentVariable("PINECONE_NAMESPACE");
-        private readonly string _namespace = "resume-akansha"; // consistent namespace
+        private readonly string _pineCodeKey = Environment.GetEnvironmentVariable("PINECONE_KEY");
+        private readonly string _namespace = Environment.GetEnvironmentVariable("PINECONE_NAMESPACE") ?? "resume-akansha";
+
+        //Then in headers:
+        //private readonly string _namespace = "resume-akansha"; // consistent namespace
 
         // -----------------------------
         // SEARCH VECTOR DB

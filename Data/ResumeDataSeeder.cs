@@ -11,7 +11,7 @@ namespace PortfolioAI.Data
         //private readonly string geminiApiKey = "AIzaSyBHk9pH8En8nbKbpNM3SHq2H8GCKwsVMzc";
         private readonly string _apiKey = Environment.GetEnvironmentVariable("GOOGLE_GEMINI_KEY");
         private readonly string _indexUrl = Environment.GetEnvironmentVariable("PINECONE_INDEX_URL");
-        private readonly string _pineCodeKey = Environment.GetEnvironmentVariable("PINECONE_NAMESPACE");
+        private readonly string _pineCodeKey = Environment.GetEnvironmentVariable("PINECONE_KEY");
 
         public async Task SeedAsync(string resumeText)
         {
