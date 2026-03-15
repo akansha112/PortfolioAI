@@ -9,7 +9,6 @@ namespace PortfolioAI.Services
         private readonly IAIService _ai;
         private readonly ChatHistoryRepository _historyRepo;
 
-
         public RagService(IVectorRepository vectorRepo, IAIService ai, ChatHistoryRepository historyRepo)
         {
             _vectorRepo = vectorRepo;
@@ -28,12 +27,12 @@ namespace PortfolioAI.Services
 
             // Step 1: Search vector DB (resume context)
             var docs = await _vectorRepo.SearchAsync(question);
+
             Console.WriteLine("[DEBUG] Retrieved context for AI prompt:");
-            foreach(var doc in docs)
+            foreach (var doc in docs)
             {
                 Console.WriteLine(doc.Content);
             }
-
 
             // Step 2: Build context from retrieved chunks
             var context = docs.Count > 0
@@ -46,7 +45,6 @@ namespace PortfolioAI.Services
             // Step 3: Construct prompt for AI
             var prompt = $@"
 You are a helpful and professional AI assistant for a developer portfolio.
-
 The person described in the context is Akansha Saxena, a SOFTWARE DEVELOPER.
 
 Use ONLY the information provided in the context below to answer the question in **a clear and detailed manner**. 
@@ -80,24 +78,30 @@ ANSWER:
         }
 
         // ---------------------------------
-        // RESUME INDEXING (NEW FEATURE)
+        // RESUME INDEXING (WITH AUTOMATIC CLEANUP)
         // ---------------------------------
         public async Task IndexResumeAsync(string resumeText)
         {
             if (string.IsNullOrWhiteSpace(resumeText))
                 throw new Exception("Resume text is empty");
 
+            // --- NEW: STEP 0: CLEAR OLD DATA ---
+            Console.WriteLine("[DEBUG] Initiating cleanup of old vector data...");
+            await _vectorRepo.ClearNamespaceAsync();
+
             // Step 1: Split resume into chunks
             var chunks = SplitIntoChunks(resumeText);
-
-            Console.WriteLine($"Indexing {chunks.Count} resume chunks...");
+            Console.WriteLine($"[DEBUG] Indexing {chunks.Count} new resume chunks...");
 
             // Step 2: Store each chunk in vector DB
             foreach (var chunk in chunks)
             {
                 await _vectorRepo.UpsertAsync(chunk);
             }
+
+            Console.WriteLine("[DEBUG] Resume indexing completed successfully.");
         }
+
         public async Task<List<ChatHistory>> GetHistoryAsync()
         {
             return await _historyRepo.GetAllAsync();
@@ -114,6 +118,7 @@ She can answer questions about her work experience, skills, and projects.
 You can greet her or ask basic conversational questions like 'Hello', 'How are you?'
 ";
         }
+
         private List<string> SplitIntoChunks(string text)
         {
             int chunkSize = 250; // smaller chunks improve search relevance

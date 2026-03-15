@@ -5,13 +5,15 @@ using RestSharp;
 namespace PortfolioAI.Services
 {
     public class GeminiService : IAIService
+
     {
-        private readonly string _apiKey = Environment.GetEnvironmentVariable("GOOGLE_GEMINI_KEY");
-        
+       
+        private readonly string _geminiKey = Environment.GetEnvironmentVariable("GOOGLE_GEMINI_KEY");
+               
         public async Task<string> AskAsync(string prompt)
         {
             var client = new RestClient(
-                $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={_apiKey}");
+                $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={_geminiKey}");
 
             var request = new RestRequest("", Method.Post);
 
